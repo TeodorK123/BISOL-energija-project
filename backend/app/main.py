@@ -1,12 +1,14 @@
 # TODO fix autoincrement issue
+# TODO add energy data routes
+# TODO add 
 
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from crud import create_customer, get_customers, update_customer, delete_customer, create_sipx_price, get_sipx_prices 
+from crud import create_customer, get_customers, get_customers_all, get_sipx_prices_all, update_customer, delete_customer, create_sipx_price, get_sipx_prices 
 from schemas import CustomerCreate, CustomerUpdate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
-
+from models import Customer, SIPXPrice, EnergyData
 
 app = FastAPI()
 
@@ -25,9 +27,9 @@ def create_new_customer(customer: CustomerCreate, db: Session = Depends(get_db))
 
 # Route to get a customer by ID
 
-@app.get("/customers/{customer_id}", response_model=CustomerResponse)
-def read_customer(customer_id: str, db: Session = Depends(get_db)):
-    db_customer = get_customers(db=db, customer_id=customer_id)
+@app.get("/customers/{id}", response_model=CustomerResponse)
+def read_customer(id: str, db: Session = Depends(get_db)):
+    db_customer = get_customers(db,id)
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     return db_customer
@@ -36,7 +38,7 @@ def read_customer(customer_id: str, db: Session = Depends(get_db)):
 
 @app.get("/customers/", response_model=list[CustomerResponse])
 def read_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    customers = get_customers(db=db, skip=skip, limit=limit)
+    customers = get_customers_all(db=db, skip=skip, limit=limit)
     return customers
 
 # Route to update a customer by ID
@@ -70,9 +72,9 @@ def get_sipx_prices_by_range(
     end_timestamp: datetime, 
     db: Session = Depends(get_db)
 ):
-    sipx_prices = db.query(sipx_prices).filter(
-        sipx_prices.timestamp_utc >= start_timestamp, 
-        sipx_prices.timestamp_utc <= end_timestamp
+    sipx_prices = db.query(SIPXPrice).filter(
+        SIPXPrice.timestamp_utc >= start_timestamp, 
+        SIPXPrice.timestamp_utc <= end_timestamp
     ).all()
 
     if not sipx_prices:
@@ -83,5 +85,5 @@ def get_sipx_prices_by_range(
 # Route to get all SIPX prices
 @app.get("/sipx_prices/", response_model=list[SIPXPriceResponse])
 def get_all_sipx_prices(db: Session = Depends(get_db)):
-    return get_sipx_prices(db=db)
+    return get_sipx_prices_all(db=db)
 

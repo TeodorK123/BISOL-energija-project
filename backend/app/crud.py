@@ -16,10 +16,14 @@ def create_customer(db: Session, customer: CustomerCreate):
 
 # Get customer by ID
 def get_customers(db: Session, customer_id: str):
+    # Ensure customer_id is being treated as a string
+    if not isinstance(customer_id, str):
+        raise ValueError("customer_id must be a string")
     return db.query(Customer).filter(Customer.id == customer_id).first()
 
+
 # Get all customers
-def get_customers(db: Session, skip: int = 0, limit: int = 100):
+def get_customers_all(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Customer).offset(skip).limit(limit).all()
 
 # Update customer by ID
@@ -62,7 +66,7 @@ def get_sipx_prices(db: Session, start_timestamp: datetime, end_timestamp: datet
 
 # Get all SIPX prices
 
-def get_sipx_prices(db: Session, skip: int = 0, limit: int = 100):
+def get_sipx_prices_all(db: Session, skip: int = 0, limit: int = 100):
     return db.query(SIPXPrice).offset(skip).limit(limit).all()
 
 # Energy Data
