@@ -1,6 +1,3 @@
-# TODO fix autoincrement issue
-# TODO add energy data routes
-# TODO add 
 
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends

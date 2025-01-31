@@ -12,7 +12,7 @@ class Customer(Base):
     name = Column(String, nullable=False)
     is_consumer = Column(Boolean, nullable=False, default=False)
     is_producer = Column(Boolean, nullable=False, default=False)
-    energy_data = relationship("EnergyData", back_populates="customer")
+    energy_data = relationship("EnergyData", back_populates="customer", cascade="all, delete-orphan")
 
 #Price Table
 

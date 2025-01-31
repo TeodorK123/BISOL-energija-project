@@ -48,10 +48,11 @@ def update_customer(db: Session, customer_id: str, customer: CustomerCreate):
 def delete_customer(db: Session, customer_id: str):
     db_customer = db.query(Customer).filter(Customer.id == customer_id).first()
     if db_customer:
+        # Manually delete related energy_data entries
+        db.query(EnergyData).filter(EnergyData.customer_id == customer_id).delete()
         db.delete(db_customer)
         db.commit()
-        return db_customer
-    return None
+    return db_customer
 
 # SIPX PRICES
 
