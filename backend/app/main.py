@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from crud import create_customer, create_energy_data, create_sipx_price_crud, customer_exists, get_customers, get_customers_all, get_energy_data_all, get_energy_data_by_customer_and_timestamp_range, get_sipx_prices_all, update_customer, delete_customer, get_sipx_prices 
-from schemas import CustomerCreate, CustomerUpdate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
+from schemas import CustomerCreate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
 from models import Customer, SIPXPrice, EnergyData
 
 
@@ -56,7 +56,7 @@ def read_first_100_customers(skip: int = 0, limit: int = 100, db: Session = Depe
 # Route to update a customer by ID
 
 @app.put("/customers/{customer_id}", response_model=CustomerResponse)
-def update_customer_view(customer_id: str, customer: CustomerUpdate, db: Session = Depends(get_db)):
+def update_customer_view(customer_id: str, customer: CustomerCreate, db: Session = Depends(get_db)):
     db_customer = update_customer(db=db, customer_id=customer_id, customer=customer)
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")

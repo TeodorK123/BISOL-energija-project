@@ -1,5 +1,7 @@
 import requests
-from datetime import datetime, time, timezone
+from datetime import datetime, timezone
+import time
+
 
 BASE_URL = "http://localhost:8000"
 
@@ -56,17 +58,50 @@ def get_energy_data_by_customer_and_range(customer_id, start_timestamp, end_time
     else:
         print(f"Failed to get energy data for customer '{customer_id}': {response.json()}")
 
-if __name__ == "__main__":
-    create_customer("Customer 205", True, False) #Change as needed
-    create_customer("Customer 305", False, True) #Change as needed
+def get_sipx_prices_by_range(start_timestamp, end_timestamp):
+    url = f"{BASE_URL}/sipx_prices/range"
+    params = {
+        "start_timestamp": start_timestamp,
+        "end_timestamp": end_timestamp
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        sipx_prices = response.json()
+        print(f"SIPX prices from {start_timestamp} to {end_timestamp}:")
+        for price in sipx_prices:
+            print(price)
+    else:
+        print(f"Failed to get SIPX prices: {response.json()}")
 
-    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 10.5, 0.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+def create_sipx_price(timestamp_utc, price):
+    url = f"{BASE_URL}/sipx_prices/"
+    payload = {
+        "timestamp_utc": timestamp_utc,
+        "price_eur_per_kwh": price
+    }
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        print(f"SIPX price created successfully.")
+    else:
+        print(f"Failed to create SIPX price: {response.json()}")
+
+if __name__ == "__main__":
+    create_customer("Customer 207", True, False) #Change as needed
+    create_customer("Customer 307", False, True) #Change as needed
+
+    create_energy_data("customer207", datetime.now(timezone.utc).isoformat(), 10.5, 0.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
     time.sleep(2)
-    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 2.5, 2.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
-    create_energy_data("customer305", datetime.now(timezone.utc).isoformat(), 0.0, 15.3) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+    create_energy_data("customer207", datetime.now(timezone.utc).isoformat(), 2.5, 2.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+    create_energy_data("customer307", datetime.now(timezone.utc).isoformat(), 0.0, 15.3) #Change as needed, NOTE: customer ids are all lowercase, no spaces
 
     get_customers()
 
-    start_timestamp = "2023-01-01T00:00:00" #3 year range
+    start_timestamp = "2025-01-01T00:00:00" #2 year range
     end_timestamp = "2026-12-31T23:59:59"
-    get_energy_data_by_customer_and_range("customer205", start_timestamp, end_timestamp) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+    get_energy_data_by_customer_and_range("customer207", start_timestamp, end_timestamp) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+    # Simulate getting SIPX prices by range
+    create_sipx_price(datetime.now(timezone.utc).isoformat(), 50.0)
+    time.sleep(2)
+    create_sipx_price(datetime.now(timezone.utc).isoformat(), 55.0)
+
+    get_sipx_prices_by_range(start_timestamp, end_timestamp)
