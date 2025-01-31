@@ -1,9 +1,12 @@
+# Imports
+
 from sqlalchemy import Column, String, ForeignKey, Boolean, DateTime, Float
 from sqlalchemy.orm import relationship
 from database import Base
 
+# --- MODELS ---
 
-#Customer Table
+#Customer Model
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -14,7 +17,7 @@ class Customer(Base):
     is_producer = Column(Boolean, nullable=False, default=False)
     energy_data = relationship("EnergyData", back_populates="customer", cascade="all, delete-orphan")
 
-#Price Table
+#Price Model
 
 class SIPXPrice(Base):
     __tablename__ = "sipx_prices"
@@ -22,6 +25,8 @@ class SIPXPrice(Base):
     timestamp_utc = Column(DateTime, primary_key=True)
     price_eur_per_kwh = Column(Float, nullable=False)
     energy_data = relationship("EnergyData", back_populates="sipx_price")
+
+# Energy Data Model for a spefic customer
 
 class EnergyData(Base):
     __tablename__ = "energy_data"

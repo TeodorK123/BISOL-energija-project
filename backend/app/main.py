@@ -1,3 +1,6 @@
+#MAIN / ROUTES
+
+#Imports
 
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends
@@ -8,6 +11,9 @@ from crud import create_customer, create_energy_data, create_sipx_price_crud, cu
 from schemas import CustomerCreate, CustomerUpdate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
 from models import Customer, SIPXPrice, EnergyData
 
+
+# --- INIT ---
+
 app = FastAPI()
 
 def get_db():
@@ -17,8 +23,10 @@ def get_db():
     finally:
         db.close()
 
+# --- ROUTES ---
 
 #Route for the root page, which redirects to the docs
+
 @app.get("/")
 def read_root():
     return RedirectResponse(url="/docs")
@@ -83,7 +91,6 @@ def get_sipx_prices_by_timestamprange(
 
     if not sipx_prices:
         raise HTTPException(status_code=404, detail="No SIPX prices found in the given range")
-    
     return sipx_prices
 
 # Route to get all SIPX prices
@@ -99,6 +106,7 @@ def get_all_energy_data(db: Session = Depends(get_db)):
 
 
 # Route to get energy data by timestamp range and customer id
+
 @app.get("/energy_data/customer/{customer_id}/range", response_model=list[EnergyDataResponse])
 def get_energy_data_by_customer_and_range(
     customer_id: str,
@@ -111,14 +119,10 @@ def get_energy_data_by_customer_and_range(
         raise HTTPException(status_code=404, detail="No energy data found for the given customer ID and timestamp range")
     return energy_data
 
-# Route to create energy data
-
 # Route to create a new energy data entry
-
 
 @app.post("/energy_data/", response_model=EnergyDataResponse)
 def create_energy_data_view(energy_data: EnergyDataCreate, db: Session = Depends(get_db)):
-    #Validate if customer exists
-    if not customer_exists(db, energy_data.customer_id):
+    if not customer_exists(db, energy_data.customer_id): 
         raise HTTPException(status_code=404, detail="Customer not found")
     return create_energy_data(db=db, energy_data=energy_data)

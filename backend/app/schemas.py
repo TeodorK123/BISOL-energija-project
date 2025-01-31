@@ -1,8 +1,12 @@
+# Imports
+
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from datetime import datetime
 
-#Customer
+# --- SCHEMAS ---
+
+#Customer Schema
 
 class CustomerBase(BaseModel):
     name: str
@@ -18,12 +22,8 @@ class CustomerResponse(CustomerBase):
     class Config:
         orm_mode = True
 
-class CustomerUpdate(CustomerBase):
-    name: Optional[str] = None
-    is_consumer: Optional[bool] = None
-    is_producer: Optional[bool] = None
 
-#Price
+#Price schema
 
 class SIPXPriceBase(BaseModel):
     timestamp_utc: datetime
@@ -36,11 +36,7 @@ class SIPXPriceResponse(SIPXPriceBase):
     class Config:
         orm_mode = True
 
-class SIPXPriceUpdate(SIPXPriceBase):
-    timestamp_utc: Optional[datetime] = None
-    price_eur_per_kwh: Optional[float] = None
-
-#EnergyData
+#EnergyData schema
 
 class EnergyDataBase(BaseModel):
     timestamp_utc: datetime
@@ -57,8 +53,4 @@ class EnergyDataResponse(EnergyDataBase):
     class Config:
         orm_mode = True
 
-class EnergyDataUpdate(EnergyDataBase):
-    timestamp_utc: Optional[datetime] = None
-    customer_id: Optional[str] = None
-    cons_kwh: Optional[float] = None
-    prod_kwh: Optional[float] = None
+

@@ -1,3 +1,6 @@
+# This script reads the CSV file and populates the database with the data (Slovenian: "Uvoz podatkov iz CSV datoteke v bazo podatkov").
+
+#Imports
 import csv
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -90,6 +93,5 @@ def import_csv(file_path: str):
 
 # Run the script
 if __name__ == "__main__":
-    # Replace with the actual path to your CSV file
     csv_file_path = "/home/vboxuser/Desktop/BISOL energija project/backend/app/data.csv"
     import_csv(csv_file_path)

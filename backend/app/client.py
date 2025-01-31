@@ -57,16 +57,16 @@ def get_energy_data_by_customer_and_range(customer_id, start_timestamp, end_time
         print(f"Failed to get energy data for customer '{customer_id}': {response.json()}")
 
 if __name__ == "__main__":
-    create_customer("Customer 205", True, False)
-    create_customer("Customer 305", False, True)
+    create_customer("Customer 205", True, False) #Change as needed
+    create_customer("Customer 305", False, True) #Change as needed
 
-    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 10.5, 0.0)
+    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 10.5, 0.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
     time.sleep(2)
-    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 2.5, 2.0)
-    create_energy_data("customer305", datetime.now(timezone.utc).isoformat(), 0.0, 15.3)
+    create_energy_data("customer205", datetime.now(timezone.utc).isoformat(), 2.5, 2.0) #Change as needed, NOTE: customer ids are all lowercase, no spaces
+    create_energy_data("customer305", datetime.now(timezone.utc).isoformat(), 0.0, 15.3) #Change as needed, NOTE: customer ids are all lowercase, no spaces
 
     get_customers()
 
     start_timestamp = "2023-01-01T00:00:00" #3 year range
     end_timestamp = "2026-12-31T23:59:59"
-    get_energy_data_by_customer_and_range("customer205", start_timestamp, end_timestamp)
+    get_energy_data_by_customer_and_range("customer205", start_timestamp, end_timestamp) #Change as needed, NOTE: customer ids are all lowercase, no spaces

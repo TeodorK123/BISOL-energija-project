@@ -1,3 +1,5 @@
+#Creates a db file
+
 from database import engine
 from models import Base
 

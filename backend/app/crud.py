@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models import Customer, SIPXPrice, EnergyData
-from schemas import CustomerCreate, CustomerUpdate, SIPXPriceCreate, EnergyDataCreate
+from schemas import CustomerCreate, SIPXPriceCreate, EnergyDataCreate
 from datetime import datetime
 
 
