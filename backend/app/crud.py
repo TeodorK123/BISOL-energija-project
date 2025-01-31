@@ -5,10 +5,15 @@ from datetime import datetime
 
 
 # CUSTOMERS
+# Validate that customer exists
+def customer_exists(db: Session, customer_id: str) -> bool:
+    return db.query(Customer).filter(Customer.id == customer_id).first() is not None
+
 # Create a new customer
 
 def create_customer(db: Session, customer: CustomerCreate):
-    db_customer = Customer(name = customer.name, is_consumer = customer.is_consumer, is_producer = customer.is_producer)
+    customer_id = customer.name.lower().replace(" ", "_")
+    db_customer = Customer(id=customer_id,name = customer.name, is_consumer = customer.is_consumer, is_producer = customer.is_producer)
     db.add(db_customer)
     db.commit()
     db.refresh(db_customer)
@@ -52,7 +57,7 @@ def delete_customer(db: Session, customer_id: str):
 
 # Create a new SIPX price   
 
-def create_sipx_price(db: Session, sipx_price: SIPXPriceCreate):
+def create_sipx_price_crud(db: Session, sipx_price: SIPXPriceCreate):
     db_sipx_price = SIPXPrice(timestamp_utc = sipx_price.timestamp_utc, price_eur_per_kwh = sipx_price.price_eur_per_kwh)
     db.add(db_sipx_price)
     db.commit()
@@ -74,7 +79,9 @@ def get_sipx_prices_all(db: Session, skip: int = 0, limit: int = 100):
 # Create a new energy data entry
 
 def create_energy_data(db: Session, energy_data: EnergyDataCreate):
-    db_energy_data = EnergyData(timestamp_utc = energy_data.timestamp_utc, customer_id = energy_data.customer_id, cons_kwh = energy_data.cons_kwh, prod_kwh = energy_data.prod_kwh)
+    # Generate id based on customer_id and timestamp
+    energy_data_id = f"{energy_data.customer_id}_{energy_data.timestamp_utc.strftime('%Y%m%d%H%M%S')}"
+    db_energy_data = EnergyData(id=energy_data_id, timestamp_utc=energy_data.timestamp_utc, customer_id=energy_data.customer_id, cons_kwh=energy_data.cons_kwh, prod_kwh=energy_data.prod_kwh)
     db.add(db_energy_data)
     db.commit()
     db.refresh(db_energy_data)
@@ -87,6 +94,14 @@ def get_energy_data(db: Session, customer_id: str):
 
 # Get all energy data
 
-def get_energy_data(db: Session):
+def get_energy_data_all(db: Session):
     return db.query(EnergyData).all()
 
+# Get energy data by timestamp range and customer ID
+
+def get_energy_data_by_customer_and_timestamp_range(db: Session, customer_id: str, start_timestamp: datetime, end_timestamp: datetime):
+    return db.query(EnergyData).filter(
+        EnergyData.customer_id == customer_id,
+        EnergyData.timestamp_utc >= start_timestamp,
+        EnergyData.timestamp_utc <= end_timestamp
+    ).all()

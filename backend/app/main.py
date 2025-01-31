@@ -4,9 +4,10 @@
 
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from crud import create_customer, get_customers, get_customers_all, get_sipx_prices_all, update_customer, delete_customer, create_sipx_price, get_sipx_prices 
+from crud import create_customer, create_energy_data, create_sipx_price_crud, customer_exists, get_customers, get_customers_all, get_energy_data_all, get_energy_data_by_customer_and_timestamp_range, get_sipx_prices_all, update_customer, delete_customer, get_sipx_prices 
 from schemas import CustomerCreate, CustomerUpdate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
 from models import Customer, SIPXPrice, EnergyData
 
@@ -19,6 +20,12 @@ def get_db():
     finally:
         db.close()
 
+
+#Route for the root page, which redirects to the docs
+@app.get("/")
+def read_root():
+    return RedirectResponse(url="/docs")
+
 # Route to create a new customer
 
 @app.post("/customers/", response_model=CustomerResponse)
@@ -28,7 +35,7 @@ def create_new_customer(customer: CustomerCreate, db: Session = Depends(get_db))
 # Route to get a customer by ID
 
 @app.get("/customers/{id}", response_model=CustomerResponse)
-def read_customer(id: str, db: Session = Depends(get_db)):
+def read_customer_by_id(id: str, db: Session = Depends(get_db)):
     db_customer = get_customers(db,id)
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
@@ -37,7 +44,7 @@ def read_customer(id: str, db: Session = Depends(get_db)):
 # Route to get all customers
 
 @app.get("/customers/", response_model=list[CustomerResponse])
-def read_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_first_100_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     customers = get_customers_all(db=db, skip=skip, limit=limit)
     return customers
 
@@ -45,7 +52,7 @@ def read_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
 
 @app.put("/customers/{customer_id}", response_model=CustomerResponse)
 def update_customer_view(customer_id: str, customer: CustomerUpdate, db: Session = Depends(get_db)):
-    db_customer = update_customer(db=db, customer_id=customer_id, customer_data=customer)
+    db_customer = update_customer(db=db, customer_id=customer_id, customer=customer)
     if db_customer is None:
         raise HTTPException(status_code=404, detail="Customer not found")
     return db_customer
@@ -61,13 +68,13 @@ def delete_customer_view(customer_id: str, db: Session = Depends(get_db)):
 
 # Route to create a new SIPX price
 @app.post("/sipx_prices/", response_model=SIPXPriceResponse)
-def create_sipx_price_view(sipx_price: SIPXPriceCreate, db: Session = Depends(get_db)):
-    return create_sipx_price(db=db, sipx_price=sipx_price)
+def create_sipx_price(sipx_price: SIPXPriceCreate, db: Session = Depends(get_db)):
+    return create_sipx_price_crud(db=db, sipx_price=sipx_price)
 
 
 # Route to get SIPX prices by timestamp range
 @app.get("/sipx_prices/range", response_model=list[SIPXPriceResponse])
-def get_sipx_prices_by_range(
+def get_sipx_prices_by_timestamprange(
     start_timestamp: datetime, 
     end_timestamp: datetime, 
     db: Session = Depends(get_db)
@@ -87,3 +94,34 @@ def get_sipx_prices_by_range(
 def get_all_sipx_prices(db: Session = Depends(get_db)):
     return get_sipx_prices_all(db=db)
 
+# Route to get all energy data entries
+
+@app.get("/energy_data/", response_model=list[EnergyDataResponse])
+def get_all_energy_data(db: Session = Depends(get_db)):
+    return get_energy_data_all(db=db)
+
+
+# Route to get energy data by timestamp range and customer id
+@app.get("/energy_data/customer/{customer_id}/range", response_model=list[EnergyDataResponse])
+def get_energy_data_by_customer_and_range(
+    customer_id: str,
+    start_timestamp: datetime,
+    end_timestamp: datetime,
+    db: Session = Depends(get_db)
+):
+    energy_data = get_energy_data_by_customer_and_timestamp_range(db=db, customer_id=customer_id, start_timestamp=start_timestamp, end_timestamp=end_timestamp)
+    if not energy_data:
+        raise HTTPException(status_code=404, detail="No energy data found for the given customer ID and timestamp range")
+    return energy_data
+
+# Route to create energy data
+
+# Route to create a new energy data entry
+
+
+@app.post("/energy_data/", response_model=EnergyDataResponse)
+def create_energy_data_view(energy_data: EnergyDataCreate, db: Session = Depends(get_db)):
+    #Validate if customer exists
+    if not customer_exists(db, energy_data.customer_id):
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return create_energy_data(db=db, energy_data=energy_data)
