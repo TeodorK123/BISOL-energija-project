@@ -13,7 +13,7 @@ def customer_exists(db: Session, customer_id: str) -> bool:
 # Create a new customer
 
 def create_customer(db: Session, customer: CustomerCreate):
-    customer_id = customer.name.lower().replace(" ", "_")
+    customer_id = customer.name.lower().translate(str.maketrans("", "", " -_"))
     if customer_exists(db, customer_id):
         raise HTTPException(status_code=400, detail="Customer already exists")
     db_customer = Customer(id=customer_id, name=customer.name, is_consumer=customer.is_consumer, is_producer=customer.is_producer)
