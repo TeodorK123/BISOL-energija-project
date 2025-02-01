@@ -11,6 +11,9 @@ from crud import create_customer, create_energy_data, create_sipx_price_crud, cu
 from schemas import CustomerCreate, SIPXPriceCreate, EnergyDataCreate, CustomerResponse, SIPXPriceResponse, EnergyDataResponse
 from models import Customer, SIPXPrice, EnergyData
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 # --- INIT ---
 
@@ -23,6 +26,14 @@ def get_db():
     finally:
         db.close()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # --- ROUTES ---
 
 #Route for the root page, which redirects to the docs
