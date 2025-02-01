@@ -5,6 +5,7 @@
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from crud import create_customer, create_energy_data, create_sipx_price_crud, customer_exists, get_customers, get_customers_all, get_energy_data_all, get_energy_data_by_customer_and_timestamp_range, get_sipx_prices_all, update_customer, delete_customer, get_sipx_prices 
@@ -34,13 +35,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 # --- ROUTES ---
 
 #Route for the root page, which redirects to the docs
 
-@app.get("/")
-def read_root():
-    return RedirectResponse(url="/docs")
+#@app.get("/")
+#def read_root():
+#    return RedirectResponse(url="/docs")
 
 # Route to create a new customer
 
@@ -137,3 +140,5 @@ def create_energy_data_view(energy_data: EnergyDataCreate, db: Session = Depends
     if not customer_exists(db, energy_data.customer_id): 
         raise HTTPException(status_code=404, detail="Customer not found")
     return create_energy_data(db=db, energy_data=energy_data)
+
+app.mount("/", StaticFiles(directory="../../frontend/build", html=True), name="static")

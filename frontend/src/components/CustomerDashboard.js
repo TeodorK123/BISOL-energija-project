@@ -9,6 +9,7 @@ const CustomerDashboard = () => {
   const [interval, setInterval] = useState({ start: '', end: '' });
   const [energyData, setEnergyData] = useState([]);
   const [sipxPrices, setSipxPrices] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:8000/customers/')
@@ -22,6 +23,7 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     if (selectedCustomer && interval.start && interval.end) {
+      setError('');
       axios.get(`http://localhost:8000/energy_data/customer/${selectedCustomer}/range`, {
         params: {
           start_timestamp: interval.start,
@@ -33,6 +35,7 @@ const CustomerDashboard = () => {
       })
       .catch(error => {
         console.error('There was an error fetching the energy data!', error);
+        setError('No energy data found for the selected time range.');
       });
 
       axios.get(`http://localhost:8000/sipx_prices/range`, {
@@ -46,6 +49,7 @@ const CustomerDashboard = () => {
       })
       .catch(error => {
         console.error('There was an error fetching the SIPX prices!', error);
+        setError('No SIPX prices found for the selected time range.');
       });
     }
   }, [selectedCustomer, interval]);
@@ -69,7 +73,12 @@ const CustomerDashboard = () => {
         </select>
       </div>
       <IntervalSelector setInterval={setInterval} />
-      <EnergyChart energyData={energyData} sipxPrices={sipxPrices} />
+      {error && <div className="alert alert-danger mt-4">{error}</div>}
+      <div className="row mt-4">
+        <div className="col-12">
+          <EnergyChart energyData={energyData} sipxPrices={sipxPrices} />
+        </div>
+      </div>
     </div>
   );
 };

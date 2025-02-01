@@ -67,9 +67,14 @@ const EnergyChart = ({ energyData, sipxPrices }) => {
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
   return (
-    <div className="chart-container">
-      <Line data={data} />
+    <div className="chart-container" style={{ position: 'relative', height: '60vh', width: '100%' }}>
+      <Line data={data} options={options} />
     </div>
   );
 };

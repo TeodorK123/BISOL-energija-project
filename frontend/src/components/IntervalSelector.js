@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
+import * as yup from 'yup';
 
 const IntervalSelector = ({ setInterval }) => {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const schema = yup.object().shape({
+    start: yup.date().required('Start date is required'),
+    end: yup.date().required('End date is required').min(yup.ref('start'), 'End date cannot be before start date'),
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setInterval({ start, end });
+    try {
+      await schema.validate({ start, end });
+      setError('');
+      setInterval({ start, end });
+    } catch (validationError) {
+      setError(validationError.message);
+    }
   };
 
   return (
@@ -31,6 +44,7 @@ const IntervalSelector = ({ setInterval }) => {
           onChange={(e) => setEnd(e.target.value)}
         />
       </div>
+      {error && <div className="alert alert-danger">{error}</div>}
       <button type="submit" className="btn btn-primary">Set Interval</button>
     </form>
   );
