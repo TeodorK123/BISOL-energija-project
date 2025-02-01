@@ -141,4 +141,4 @@ def create_energy_data_view(energy_data: EnergyDataCreate, db: Session = Depends
         raise HTTPException(status_code=404, detail="Customer not found")
     return create_energy_data(db=db, energy_data=energy_data)
 
-app.mount("/", StaticFiles(directory="../../frontend/build", html=True), name="static")
+app.mount("/", StaticFiles(directory="build", html=True), name="static")
